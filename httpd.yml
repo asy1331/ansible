@@ -4,16 +4,51 @@
   #user: ansadmin
   become_method: sudo
   tasks:
-    - name: 1. Install latest version of apache
+    - name: Checking OS version
+      debug: var=ansible_os_family
+    
+    - name: 1. Install latest version of apache on Readhat
       #yum: check-update    
-      yum: name=apache2 state=latest
+      #yum: name=apache2 state=latest
+      yum: name=httpd state=latest
       become: true
-    - name: 2. start apache
+      when: ansible_os_family == "RedHat"
+      
+    - name: 1. Install latest version of apache on Readhat
+      apt: name=apache2 state=latest
+      become: true
+      when: ansible_os_family == "Debian"
+      
+    - name: 2. start apache RedHat
+      #service: name=apache2 state=started enabled=yes
+      service: name=httpd state=started enabled=yes
+      become: true
+      when: ansible_os_family == "RedHat"
+      
+    - name: 2. start apache Debian
       service: name=apache2 state=started enabled=yes
+      #service: name=httpd state=started enabled=yes
       become: true
+      when: ansible_os_family == "Debian" 
+           
     - name: 3. copy standart index.html
       copy: src=/tmp/index.html dest=/var/www/html/index.html mode=0664
+      notify: RestartApacheRedHat
       become: true
+      when: ansible_os_family == "RedHat"
+      
+    - name: 3. copy standart index.html
+      copy: src=/tmp/index.html dest=/var/www/html/index.html mode=0664
+      notify: RestartApacheDebian
+      become: true
+      when: ansible_os_family == "Debian"
+           
     - name: 4. save iptables
       command: iptables-save
       become: true
+      
+  handlers:
+    - name: RestartApacheRedHat
+      service: name=httpd state=restarted
+    - name: RestartApacheDebian
+      service: name=apache2 state=restarted   
