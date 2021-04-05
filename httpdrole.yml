@@ -1,0 +1,13 @@
+---
+ - hosts: all
+   become_method: sudo
+   roles:
+    - deploy_apache_web
+
+   
+
+
+
+
+
+ 

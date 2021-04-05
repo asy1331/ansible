@@ -1,0 +1,53 @@
+---
+ - hosts: all
+   become_method: sudo
+   tasks:
+     - name: Checking OS version
+       debug: var=ansible_os_family
+     - block: #Readhat
+       - name: 1. Install latest version of apache on Readhat
+
+         yum: name=httpd state=latest
+         become: true
+      
+      
+       - name: 2. start apache RedHat
+      
+         service: name=httpd state=started enabled=yes
+         become: true
+       when: ansible_os_family == "RedHat"
+      
+    
+     - block:
+       - name: 1. Install latest version of apache on Debian
+         apt: name=apache2 state=latest
+         become: true
+      
+
+       - name: 2. start apache Debian
+         service: name=apache2 state=started enabled=yes
+         become: true
+       when: ansible_os_family == "Debian" 
+        
+
+     - name: copyweb
+       copy: src=/home/igor/Desktop/web2/ dest=/var/www/html mode=0664
+       notify: 
+         - RestartApacheRedHat
+         - RestartApacheDebian
+       become: true
+   
+
+   handlers:
+       - name: RestartApacheRedHat
+         become: true
+         service: name=httpd state=restarted
+         when: ansible_os_family == "RedHat"
+       - name: RestartApacheDebian
+         become: true
+         service: name=apache2 state=restarted
+         when: ansible_os_family == "Debian" 
+
+
+
+ 

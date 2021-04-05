@@ -1,0 +1,10 @@
+---
+# handlers file for deploy_apache_web
+- name: RestartApacheRedHat
+  become: true
+  service: name=httpd state=restarted
+  when: ansible_os_family == "RedHat"
+- name: RestartApacheDebian
+  become: true
+  service: name=apache2 state=restarted
+  when: ansible_os_family == "Debian" 

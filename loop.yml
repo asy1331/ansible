@@ -1,0 +1,10 @@
+---
+ - hosts: all
+   become_method: sudo
+   tasks:
+     - name: say hello
+       debug: msg="Hello {{item}}"
+       loop:
+          - "Vasiy"
+          - "Petya"
+          - "Kolya"
